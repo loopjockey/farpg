@@ -13,7 +13,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "van-dom": "github:vanjs-org/van"
+    "fetch-polyfill": "^0.8.2",
+    "van-dom": "github:vanjs-org/van",
+    "whatwg-fetch": "^3.6.2"
   },
   "devDependencies": {
     "@babel/cli": "^7.21.5",
