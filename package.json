@@ -5,11 +5,12 @@
   "main": "index.js",
   "scripts": {
     "start": "lite-server",
-    "build-js": "webpack",
+    "build-js": "webpack --mode production",
+    "dev-js": "webpack --mode development",
     "minify-css": "cleancss styles.css -o styles.min.css",
     "minify": "npm run build-js && npm run minify-css",
-    "dev": "nodemon -e js,css -x \"npm run minify && npm start\" --ignore bundle.js --ignore styles.min.css"
-  },
+    "dev": "nodemon -e js,css -x \"npm run dev-js && npm run minify-css && npm start\" --ignore bundle.js --ignore styles.min.css"
+  },  
   "author": "",
   "license": "ISC",
   "dependencies": {
