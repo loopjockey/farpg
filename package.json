@@ -16,6 +16,7 @@
   "dependencies": {
     "@oddjs/odd": "^0.37.1",
     "fetch-polyfill": "^0.8.2",
+    "openai": "^3.3.0",
     "van-dom": "github:vanjs-org/van",
     "whatwg-fetch": "^3.6.2"
   },

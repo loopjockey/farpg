@@ -1,11 +1,13 @@
 import van from "./van-0.11.10.js"
 import { initDB, op } from './idb.js';
 import 'whatwg-fetch'
+import * as openai from 'openai';
 
 const { add, tags, state, bind } = van;
 const {
     button, div, form, label, h1, h2, h3,
-    textarea, p, details, summary, header
+    textarea, p, details, summary, header,
+    input
 } = tags;
 
 const createNewRecord = (prompt, emoji) => {
@@ -28,9 +30,25 @@ const HistoryList = (history) => {
     return bind(history, (hst) => div(hst.length ? hst.map(h => add(HistoryListItem(h))) : h1('🌀🌾')));
 }
 
-const PromptForm = (prompt, history) => {
+const PromptForm = (prompt, history, serviceUrl, apiKey) => {
     const isLoading = state(false);
     return form(
+        label({ for: 'serviceUrl' }, 'Service URL'),
+        input({
+            type: 'text',
+            id: 'serviceUrl',
+            name: 'serviceUrl',
+            placeholder: 'Enter Service URL',
+            oninput: (e) => serviceUrl.val = e.target.value
+        }),
+        label({ for: 'apiKey' }, 'API Key'),
+        input({
+            type: 'password',
+            id: 'apiKey',
+            name: 'apiKey',
+            placeholder: 'Enter API Key',
+            oninput: (e) => apiKey.val = e.target.value
+        }),
         label({ for: 'prompt' }, 'Prompt'),
         textarea({
             name: 'prompt',
@@ -47,8 +65,18 @@ const PromptForm = (prompt, history) => {
                         try {
                             isLoading.val = true;
                             const db = await initDB('emojis', 'history');
-                            const response = await fetch(`https://emojis.semicolon.workers.dev/?name=${prompt.val}`);
-                            const record = createNewRecord(prompt.val, await response.text());
+                            const cli = new openai.OpenAIApi({ 
+                                basePath: serviceUrl.val + '/oai', 
+                                baseOptions: { headers: { 'Authorization': `Bearer ${apiKey.val}` } }
+                            });
+                            const resp = await cli.createCompletion({
+                                model: 'text-davinci-003',
+                                prompt: `bumblebee shield" as emojis = 🐝🛡️
+                                "tom cruise" as emojis = 🤴🎥
+                                "${prompt.val}" as emojis = `
+                            });
+                            const text = resp.data.choices[0].text;
+                            const record = createNewRecord(prompt.val, text);
                             const reverseTimestamp = createReversetimestamp(new Date());
                             await op(db, 'CREATE', { id: reverseTimestamp + record.emoji, ...record });
                             history.val = [record, ...history.val];
@@ -66,6 +94,7 @@ const PromptForm = (prompt, history) => {
     );
 }
 
+
 const LoadExistingHistory = async (history) => {
     const db = await initDB('emojis', 'history');
     const records = await op(db, 'LIST');
@@ -75,6 +104,8 @@ const LoadExistingHistory = async (history) => {
 const View = () => {
     const dom = div()
     const prompt = state('');
+    const serviceUrl = state('');  // new state for serviceUrl
+    const apiKey = state('');
     const history = state([]);
     LoadExistingHistory(history);
     return div(
@@ -82,7 +113,7 @@ const View = () => {
         h1('🤔 Emojifusion'),
         p(`Describe the art piece your heart desires and, with a sprinkle of our secret algorithmic magic, transforms them into a delightful diffusion of UTF-8 emojis. It's like a surprise party for your eyes! With EmojiFusion, you're not just getting a picture, you're embarking on a joyride of jocular jest and jovial jumble. So, say goodbye to the stable and mundane, and embrace the unpredictable hilarity of EmojiFusion. `),
         header({ class: 'row' }, h2('🎨 Get creating')/*, button({ class: 'login-btn' }, '🙋 LOGIN')*/),
-        PromptForm(prompt, history),
+        PromptForm(prompt, history, serviceUrl, apiKey),
         h2('🕗 History'),
         HistoryList(history)
     )
