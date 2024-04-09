@@ -2,121 +2,62 @@ import van from "./van-0.11.10.js"
 import { initDB, op } from './idb.js';
 import 'whatwg-fetch'
 import * as openai from 'openai';
+import fullpage from 'fullpage.js'
 
 const { add, tags, state, bind } = van;
 const {
     button, div, form, label, h1, h2, h3,
     textarea, p, details, summary, header,
-    input
+    input, section, span, script, img
 } = tags;
 
-const createNewRecord = (prompt, emoji) => {
-    return { emoji, prompt };
-}
+const NEYNAR_CLIENT_ID = '7d22ab5b-4b4f-484e-bc72-04f11e48089e';
 
-const createReversetimestamp = (date) => {
-    return 8640000000000000 - date.getTime();
-}
-
-const HistoryListItem = (h) => {
-    return details(
-        { open: true },
-        summary(h.prompt),
-        h1(h.emoji)
-    );
-}
-
-const HistoryList = (history) => {
-    return bind(history, (hst) => div(hst.length ? hst.map(h => add(HistoryListItem(h))) : h1('🌀🌾')));
-}
-
-const PromptForm = (prompt, history, serviceUrl, apiKey) => {
-    const isLoading = state(false);
-    return form(
-        label({ for: 'serviceUrl' }, 'Service URL'),
-        input({
-            type: 'text',
-            id: 'serviceUrl',
-            name: 'serviceUrl',
-            placeholder: 'Enter Service URL',
-            oninput: (e) => serviceUrl.val = e.target.value
-        }),
-        label({ for: 'apiKey' }, 'API Key'),
-        input({
-            type: 'password',
-            id: 'apiKey',
-            name: 'apiKey',
-            placeholder: 'Enter API Key',
-            oninput: (e) => apiKey.val = e.target.value
-        }),
-        label({ for: 'prompt' }, 'Prompt'),
-        textarea({
-            name: 'prompt',
-            id: 'prompt',
-            disabled: isLoading.val,
-            placeholder: 'e.g. A plate of bumblebee sauce being consumed by a ferocious koala',
-            oninput: (e) => prompt.val = e.target.value
-        }),
-        bind(isLoading, (v) => {
-            if (!v) {
-                return button({
-                    onclick: async (e) => {
-                        e.preventDefault();
-                        try {
-                            isLoading.val = true;
-                            const db = await initDB('emojis', 'history');
-                            const cli = new openai.OpenAIApi({ 
-                                basePath: serviceUrl.val + '/oai', 
-                                baseOptions: { headers: { 'Authorization': `Bearer ${apiKey.val}` } }
-                            });
-                            const resp = await cli.createCompletion({
-                                model: 'text-davinci-003',
-                                prompt: `bumblebee shield" as emojis = 🐝🛡️
-                                "tom cruise" as emojis = 🤴🎥
-                                "${prompt.val}" as emojis = `
-                            });
-                            const text = resp.data.choices[0].text;
-                            const record = createNewRecord(prompt.val, text);
-                            const reverseTimestamp = createReversetimestamp(new Date());
-                            await op(db, 'CREATE', { id: reverseTimestamp + record.emoji, ...record });
-                            history.val = [record, ...history.val];
-                        } finally {
-                            isLoading.val = false;
-                        }
-                    },
-                    type: "submit",
-                },
-                    'Create ▶️')
-            } else {
-                return button({ type: "submit", disabled: true }, 'Loading ⟳');
-            }
-        })
-    );
-}
-
-
-const LoadExistingHistory = async (history) => {
-    const db = await initDB('emojis', 'history');
-    const records = await op(db, 'LIST');
-    history.val = records;
+const LoginWithNeynar = () => {
+    return div({
+        class: 'neynar_signin',
+        'data-height': '89px',
+        'data-width': '230px',
+        'data-border_radius': '10px',
+        'data-font_size': '16px',
+        'data-font_weight': '300',
+        'data-padding': '8px 15px',
+        'data-client_id': NEYNAR_CLIENT_ID,
+        'data-success-callback': 'onSignInSuccess',
+        'data-theme': 'dark'
+    });
 }
 
 const View = () => {
-    const dom = div()
-    const prompt = state('');
-    const serviceUrl = state('');  // new state for serviceUrl
-    const apiKey = state('');
-    const history = state([]);
-    LoadExistingHistory(history);
-    return div(
-        dom,
-        h1('🤔 Emojifusion'),
-        p(`Describe the art piece your heart desires and, with a sprinkle of our secret algorithmic magic, transforms them into a delightful diffusion of UTF-8 emojis. It's like a surprise party for your eyes! With EmojiFusion, you're not just getting a picture, you're embarking on a joyride of jocular jest and jovial jumble. So, say goodbye to the stable and mundane, and embrace the unpredictable hilarity of EmojiFusion. `),
-        header({ class: 'row' }, h2('🎨 Get creating')/*, button({ class: 'login-btn' }, '🙋 LOGIN')*/),
-        PromptForm(prompt, history, serviceUrl, apiKey),
-        h2('🕗 History'),
-        HistoryList(history)
-    )
+    const dom = div({ id: 'fullpage' },
+        div({ class: 'section splash' },
+            div({ class: 'centered-box ' },
+                h1({ class: "text-center mb-0", style: "'font-family':'Sixtyfour', sans-serif;'" }, 'FARPG'),
+                div({ class: "text-center" }, "Pronounced /fɑːr pɪgʌ/"),
+                h2({ class: "text-center" }, '🧙🎲🐲💖'),
+                div({ class: "text-center contrast-box pa-4 pt-1" },
+                    LoginWithNeynar(),
+                    h3({ class: 'text-center' }, "Lost?"),
+                    div("Scroll or swiper for more information..."),
+                ))
+        ),
+        div({ class: 'section snek' },
+            div({ class: 'grid-container' },
+                div({ class: 'box' },
+                    div({  }, 'test')),
+                div({ class: 'box' }, span("Blah blah blah"))
+            ),
+
+        ),
+        div({ class: 'section' },
+            div(span("It's beautiful and don't need jQuery")),
+
+        ),
+        script({ src: 'https://neynarxyz.github.io/siwn/raw/1.0.0/index.js', async: true }),
+        script('function onSignInSuccess(data) { console.log(data);  }')
+    );
+    return dom;
 }
 
 add(document.body, View())
+fullpage('#fullpage', { licenseKey: '53M3J-977IK-1K5D7-I7266-SNRWS', });

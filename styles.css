@@ -1,10 +1,79 @@
-.row {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
+* {
+  font-family: 'Roboto', sans-serif;
 }
 
-.login-btn {
-    margin-top:24px
+.splash {
+  background-color: #fbff83;
+}
+
+.splash .centered-box .contrast-box {
+  background: #ff88c4;
+  border-radius: 40px;
+}
+
+.snek {
+  background-color: #393f5d;
+  color: white;
+}
+
+.snek .grid-container {
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  gap: 10px;
+}
+
+.snek .grid-container .box {
+  padding: 20px;
+  border: 1px solid black;
+  text-align: center;
+}
+
+.mt-0 {
+  margin-top: 0;
+}
+
+.mb-0 {
+  margin-bottom: 0;
+}
+
+.pt-0 {
+  padding-top: 0px !important;
+}
+
+.pt-1 {
+  padding-top: 10px !important;
+}
+
+.pa-4 {
+  padding: 40px;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.neynar_signin button {
+  background: transparent;
+  border: 0;
+  box-shadow: 0;
+}
+
+h1 {
+  font-family: 'Honk', system-ui;
+  font-size: 80px;
+}
+
+h2 {
+  font-size: 35px;
+}
+
+.centered-box {
+  position: fixed; /* or absolute */
+  top: 50%;
+  left: 50%;
+  /* bring your own prefixes */
+  transform: translate(-50%, -50%);
 }
